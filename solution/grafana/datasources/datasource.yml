@@ -1,0 +1,13 @@
+apiVersion: 1
+
+datasources:
+  - name: proood_pgsql
+    type: postgres
+    access: proxy
+    url: db:5432 # или укажите имя контейнера с БД
+    user: prod
+    database: prod
+    secureJsonData:
+      password: "brain_rot"
+    jsonData:
+      sslmode: "disable" # или "require" если используется SSL

@@ -1,0 +1,17 @@
+- [x] requirement api
+  - [x] all endpoints
+  - [x] algorithm
+- [x] tests
+  - [x] unit
+  - [x] e2e
+- [x] images
+- [x] grafana statistic
+- [x] tg bot
+- [x] llm
+- [x] moderation
+- [x] docs
+  - [x] validity of used techs
+  - [x] how to run
+  - [x] demo of work
+  - [x] endpoint description
+  - [x] database schema description

@@ -1,0 +1,1224 @@
+components:
+  schemas:
+    dto.AdUser:
+      properties:
+        ad_id:
+          type: string
+        ad_text:
+          type: string
+        ad_title:
+          type: string
+        advertiser_id:
+          type: string
+      type: object
+    dto.DailyStats:
+      properties:
+        clicks_count:
+          type: integer
+        conversion:
+          type: number
+        date:
+          type: integer
+        impressions_count:
+          type: integer
+        spent_clicks:
+          type: number
+        spent_impressions:
+          type: number
+        spent_total:
+          type: number
+      type: object
+    dto.ModerationBody:
+      properties:
+        moderation:
+          type: boolean
+      required:
+      - moderation
+      type: object
+    dto.ModerationVerdictBody:
+      properties:
+        verdict:
+          type: boolean
+      required:
+      - verdict
+      type: object
+    dto.NeuroBody:
+      properties:
+        ad_title:
+          type: string
+      required:
+      - ad_title
+      type: object
+    dto.QueryClient:
+      properties:
+        client_id:
+          form: client_id
+          type: string
+      required:
+      - client_id
+      type: object
+    dto.Stats:
+      properties:
+        clicks_count:
+          type: integer
+        conversion:
+          type: number
+        impressions_count:
+          type: integer
+        spent_clicks:
+          type: number
+        spent_impressions:
+          type: number
+        spent_total:
+          type: number
+      type: object
+    dto.TimeSetBody:
+      properties:
+        current_date:
+          type: integer
+      required:
+      - current_date
+      type: object
+    handlers.NeuroAnswer:
+      properties:
+        ad_text:
+          type: string
+      type: object
+    handlers.UploadedImageKey:
+      properties:
+        key:
+          type: string
+      type: object
+    models.Advertiser:
+      properties:
+        advertiser_id:
+          type: string
+        name:
+          type: string
+      required:
+      - advertiser_id
+      - name
+      type: object
+    models.Campaign:
+      properties:
+        ad_text:
+          type: string
+        ad_title:
+          type: string
+        advertiser_id:
+          type: string
+        campaign_id:
+          type: string
+        clicks_limit:
+          type: integer
+        cost_per_click:
+          type: number
+        cost_per_impression:
+          type: number
+        end_date:
+          type: integer
+        image:
+          type: string
+        impressions_limit:
+          type: integer
+        moderated:
+          type: boolean
+        start_date:
+          type: integer
+        targeting:
+          $ref: '#/components/schemas/models.Targeting'
+      required:
+      - ad_text
+      - ad_title
+      - clicks_limit
+      - cost_per_click
+      - cost_per_impression
+      - end_date
+      - impressions_limit
+      - start_date
+      type: object
+    models.CampaignUpdate:
+      properties:
+        ad_text:
+          type: string
+        ad_title:
+          type: string
+        advertiser_id:
+          type: string
+        campaign_id:
+          type: string
+        clicks_limit:
+          type: integer
+        cost_per_click:
+          type: number
+        cost_per_impression:
+          type: number
+        impressions_limit:
+          type: integer
+        targeting:
+          $ref: '#/components/schemas/models.Targeting'
+      required:
+      - ad_text
+      - ad_title
+      - clicks_limit
+      - impressions_limit
+      type: object
+    models.Client:
+      properties:
+        age:
+          type: integer
+        client_id:
+          type: string
+        gender:
+          enum:
+          - MALE
+          - FEMALE
+          type: string
+        location:
+          type: string
+        login:
+          type: string
+      required:
+      - age
+      - client_id
+      - gender
+      - location
+      - login
+      type: object
+    models.MLScore:
+      properties:
+        advertiser_id:
+          type: string
+        client_id:
+          description: составной первичный ключ
+          type: string
+        score:
+          type: integer
+      required:
+      - advertiser_id
+      - client_id
+      - score
+      type: object
+    models.Targeting:
+      properties:
+        age_from:
+          type: integer
+        age_to:
+          type: integer
+        gender:
+          enum:
+          - MALE
+          - FEMALE
+          - ALL
+          type: string
+        location:
+          type: string
+      type: object
+externalDocs:
+  description: ""
+  url: ""
+info:
+  description: PROOOOOOOOOD
+  title: Prod-2025 AD API
+  version: "1.0"
+openapi: 3.1.0
+paths:
+  /ads:
+    get:
+      description: Get ads by client ID
+      parameters:
+      - description: Client ID
+        in: query
+        name: client_id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/dto.AdUser'
+                type: array
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+          description: Bad Request
+        "404":
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+          description: Not Found
+      summary: Get ads
+      tags:
+      - ads
+  /ads/{id}/click:
+    post:
+      description: Register a click on an ad by ID
+      parameters:
+      - description: Ad ID
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/dto.QueryClient'
+        description: Client ID
+        required: true
+      responses:
+        "204":
+          description: No Content
+        "400":
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+          description: Bad Request
+        "404":
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+          description: Not Found
+      summary: Click an ad
+      tags:
+      - ads
+  /advertisers/{id}:
+    get:
+      description: Get an advertiser by ID
+      parameters:
+      - description: Advertiser ID
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/models.Advertiser'
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+          description: Bad Request
+        "404":
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+          description: Not Found
+      summary: Get an advertiser
+      tags:
+      - advertisers
+  /advertisers/{id}/campaigns:
+    get:
+      description: Get campaigns by advertiser ID with pagination
+      parameters:
+      - description: Advertiser ID
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      - description: Page size
+        in: query
+        name: size
+        required: true
+        schema:
+          type: integer
+      - description: Page number
+        in: query
+        name: page
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/models.Campaign'
+                type: array
+          description: OK
+          headers:
+            X-Total-Count:
+              description: Total number of campaigns
+              schema:
+                type: integer
+        "400":
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+          description: Bad Request
+        "404":
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+          description: Not Found
+      summary: List campaigns
+      tags:
+      - campaigns
+    post:
+      description: Create a new campaign for an advertiser
+      parameters:
+      - description: Advertiser ID
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/models.Campaign'
+        description: Campaign data
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/models.Campaign'
+          description: Created
+        "400":
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+          description: Bad Request
+      summary: Create a campaign
+      tags:
+      - campaigns
+  /advertisers/{id}/campaigns/{camp_id}:
+    delete:
+      description: Delete a campaign by advertiser ID and campaign ID
+      parameters:
+      - description: Advertiser ID
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      - description: Campaign ID
+        in: path
+        name: camp_id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+          description: Bad Request
+        "404":
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+          description: Not Found
+      summary: Delete a campaign
+      tags:
+      - campaigns
+    get:
+      description: Get a campaign by advertiser ID and campaign ID
+      parameters:
+      - description: Advertiser ID
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      - description: Campaign ID
+        in: path
+        name: camp_id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/models.Campaign'
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+          description: Bad Request
+        "404":
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+          description: Not Found
+      summary: Get a campaign
+      tags:
+      - campaigns
+    put:
+      description: Update a campaign by advertiser ID and campaign ID
+      parameters:
+      - description: Advertiser ID
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      - description: Campaign ID
+        in: path
+        name: camp_id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/models.CampaignUpdate'
+        description: Campaign update data
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/models.Campaign'
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+          description: Bad Request
+        "404":
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+          description: Not Found
+        "409":
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+          description: Conflict
+      summary: Update a campaign
+      tags:
+      - campaigns
+  /advertisers/{id}/campaigns/{camp_id}/image:
+    delete:
+      description: Delete an image from a campaign
+      parameters:
+      - description: Advertiser ID
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      - description: Campaign ID
+        in: path
+        name: camp_id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+          description: Bad Request
+        "404":
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+          description: Not Found
+        "500":
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+          description: Internal Server Error
+      summary: Delete an image
+      tags:
+      - campaigns
+    get:
+      description: Get an image from a campaign
+      parameters:
+      - description: Advertiser ID
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      - description: Campaign ID
+        in: path
+        name: camp_id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: file
+            image/*:
+              schema:
+                type: string
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+          description: Bad Request
+        "404":
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+          description: Not Found
+      summary: Get an image
+      tags:
+      - campaigns
+    put:
+      description: Upload an image to a campaign
+      parameters:
+      - description: Advertiser ID
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      - description: Campaign ID
+        in: path
+        name: camp_id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      requestBody:
+        content:
+          image/*:
+            schema:
+              format: binary
+              type: string
+        description: Image file
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/handlers.UploadedImageKey'
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+          description: Bad Request
+        "404":
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+          description: Not Found
+        "500":
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+          description: Internal Server Error
+      summary: Upload an image
+      tags:
+      - campaigns
+  /advertisers/bulk:
+    post:
+      description: Bulk create advertisers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              items:
+                $ref: '#/components/schemas/models.Advertiser'
+              type: array
+        description: List of advertisers
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/models.Advertiser'
+                type: array
+          description: Created
+        "400":
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+          description: Bad Request
+      summary: Bulk create advertisers
+      tags:
+      - advertisers
+  /clients/{id}:
+    get:
+      description: Get a client by client ID
+      parameters:
+      - description: Client ID
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/models.Client'
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+          description: Bad Request
+        "404":
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+          description: Not Found
+      summary: Get a client
+      tags:
+      - clients
+  /clients/bulk:
+    post:
+      description: Create multiple clients in bulk
+      requestBody:
+        content:
+          application/json:
+            schema:
+              items:
+                $ref: '#/components/schemas/models.Client'
+              type: array
+        description: List of clients
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/models.Client'
+                type: array
+          description: Created
+        "400":
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+          description: Bad Request
+      summary: Bulk create clients
+      tags:
+      - clients
+  /ml-scores:
+    post:
+      description: Set the ML score for a specific entities
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/models.MLScore'
+        description: ML Score
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+          description: Bad Request
+        "404":
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+          description: Not Found
+      summary: Set ML score
+      tags:
+      - system
+  /moderation:
+    post:
+      description: Enable or disable moderation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/dto.ModerationBody'
+        description: Moderation settings
+        required: true
+      responses:
+        "200":
+          content:
+            application/json: {}
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+          description: Bad Request
+        "500":
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+          description: Internal Server Error
+      summary: Change moderation settings
+      tags:
+      - moderation
+  /moderation/campaigns:
+    get:
+      description: Retrieve a list of unmoderated campaigns
+      parameters:
+      - description: Page size
+        in: query
+        name: size
+        required: true
+        schema:
+          type: integer
+      - description: Page number
+        in: query
+        name: page
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/models.Campaign'
+                type: array
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+          description: Bad Request
+      summary: Get unmoderated campaigns
+      tags:
+      - moderation
+  /moderation/campaigns/{id}:
+    post:
+      description: Approve or reject a campaign based on the verdict
+      parameters:
+      - description: Campaign ID
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/dto.ModerationVerdictBody'
+        description: Moderation verdict
+        required: true
+      responses:
+        "200":
+          content:
+            application/json: {}
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+          description: Bad Request
+        "500":
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+          description: Internal Server Error
+      summary: Moderate a campaign
+      tags:
+      - moderation
+  /neuro/{id}:
+    post:
+      description: Generate an advertisement description using LLM service
+      parameters:
+      - description: Advertiser ID
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/dto.NeuroBody'
+        description: Neuro Body
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/handlers.NeuroAnswer'
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+          description: Bad Request
+        "404":
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+          description: Not Found
+        "500":
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+          description: Internal Server Error
+      summary: Generate ad description
+      tags:
+      - neuro
+  /stats/advertisers/{id}/campaigns:
+    get:
+      description: Get statistics for all campaigns of a specific advertiser by advertiser
+        ID
+      parameters:
+      - description: Advertiser ID
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/dto.Stats'
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+          description: Bad Request
+        "404":
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+          description: Not Found
+      summary: Get advertiser campaign statistics
+      tags:
+      - stats
+  /stats/advertisers/{id}/campaigns/daily:
+    get:
+      description: Get daily statistics for all campaigns of a specific advertiser
+        by advertiser ID
+      parameters:
+      - description: Advertiser ID
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/dto.DailyStats'
+                type: array
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+          description: Bad Request
+        "404":
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+          description: Not Found
+      summary: Get advertiser campaign daily statistics
+      tags:
+      - stats
+  /stats/campaigns/{id}:
+    get:
+      description: Get statistics for a specific campaign by campaign ID
+      parameters:
+      - description: Campaign ID
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/dto.Stats'
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+          description: Bad Request
+        "404":
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+          description: Not Found
+      summary: Get campaign statistics
+      tags:
+      - stats
+  /stats/campaigns/{id}/daily:
+    get:
+      description: Get daily statistics for a specific campaign by campaign ID
+      parameters:
+      - description: Campaign ID
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/dto.DailyStats'
+                type: array
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+          description: Bad Request
+        "404":
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+          description: Not Found
+      summary: Get campaign daily statistics
+      tags:
+      - stats
+  /time/advance:
+    post:
+      description: Advance the current date in the system
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/dto.TimeSetBody'
+        description: Time Set Body
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/dto.TimeSetBody'
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+          description: Bad Request
+        "500":
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+          description: Internal Server Error
+      summary: Advance time
+      tags:
+      - system
+servers:
+- url: http://localhost:8080/

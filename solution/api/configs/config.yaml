@@ -1,0 +1,15 @@
+db:
+  host: db
+  user: prod
+  password: brain_rot
+  db_name: prod
+  port: 5432
+http:
+  port: 8080
+s3:
+  endpoint: minio:9000
+  user: prod
+  password: not_for_prod
+ollama:
+  base_url: http://ollama:11434
+  model: qwen2.5:0.5b
